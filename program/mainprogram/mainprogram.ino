@@ -11,12 +11,6 @@ BH1750 lightMeter;
 extern uint8_t SmallFont[];
 extern unsigned char TinyFont[];
 
-float y;
-uint8_t* bm;
-int pacy;
-
-
-
 int idx[2];
 int countDown = 120;  // Countind down 2 minutes
 unsigned long lastTick;
@@ -136,10 +130,29 @@ void settingScreen() {
     myGLCD.printNumI(configuration.set_lux[idx[0]], pos_x, pos_string);
     myGLCD.printNumI(configuration.set_timer[idx[1]], pos_x, pos_string + offset_t);
     myGLCD.update();
-
+    //
+    //    if (!digitalRead(PB_INTENSITY)) {
+    //      while (!digitalRead(PB_INTENSITY))
+    //        yield();
+    //      idx[0]++;
+    //      if (idx[0] >= 5)
+    //        idx[0] = 0;
+    //      Serial.print("Intensity:");
+    //      Serial.println(configuration.set_lux[idx[0]]);
+    //    }
+    unsigned long tick_1 = millis();
     if (!digitalRead(PB_INTENSITY)) {
       while (!digitalRead(PB_INTENSITY))
-        yield();
+      {
+        if (timerX(tick_1, 1000))
+        {
+          advScren();
+          while (!digitalRead(PB_INTENSITY))
+            yield();
+          advance_mode(0);
+        }
+      }
+
       idx[0]++;
       if (idx[0] >= 5)
         idx[0] = 0;
@@ -147,15 +160,34 @@ void settingScreen() {
       Serial.println(configuration.set_lux[idx[0]]);
     }
 
-    if (!digitalRead(PB_TIMER)) {
+//    if (!digitalRead(PB_TIMER)) {
+//      while (!digitalRead(PB_TIMER))
+//        yield();
+//      idx[1]++;
+//      if (idx[1] >= 5)
+//        idx[1] = 0;
+//
+//      Serial.print("Timer:");
+//      Serial.println(configuration.set_timer[idx[1]]);
+//    }
+
+if (!digitalRead(PB_TIMER)) {
       while (!digitalRead(PB_TIMER))
-        yield();
+      {
+        if (timerX(tick_1, 1000))
+        {
+          advScren();
+          while (!digitalRead(PB_TIMER))
+            yield();
+          advance_mode(1);
+        }
+      }
+
       idx[1]++;
       if (idx[1] >= 5)
         idx[1] = 0;
-      
-      Serial.print("Timer:");
-      Serial.println(configuration.set_timer[idx[1]]);
+      Serial.print("Intensity:");
+      Serial.println(configuration.set_lux[idx[0]]);
     }
     if (!digitalRead(PB_OK)) {
       while (!digitalRead(PB_OK))

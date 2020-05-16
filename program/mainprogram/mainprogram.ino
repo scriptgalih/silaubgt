@@ -3,7 +3,8 @@
 #include <Wire.h>
 #include "SparkFunBME280.h"
 #include <BH1750.h>
-
+#include <EEPROM.h>
+#include "EEPROMAnything.h"
 LCD5110 myGLCD(4, 7, 8, 12, 11);
 BME280 mySensorB;
 BH1750 lightMeter;
@@ -14,14 +15,23 @@ float y;
 uint8_t* bm;
 int pacy;
 
-int set_lux[5] = {50, 100, 150, 200, 250};
-int set_timer[5] = {1, 2, 3, 4,5};
+
 
 int idx[2];
 int countDown = 120;  // Countind down 2 minutes
 unsigned long lastTick;
+
+struct config_t
+{
+  int set_lux[5];
+  int set_timer[5];
+} configuration;
+
+
 void setup()
-{ Serial.begin(9600);
+{
+  Serial.begin(9600);
+  EEPROM_readAnything(0, configuration);
   Serial.println("Example showing alternate I2C addresses");
   Wire.begin();
   pinMode(PB_INTENSITY, 0);
@@ -123,8 +133,8 @@ void settingScreen() {
     myGLCD.drawLine(0, 8, 84, 8);
     myGLCD.print("Set Lux:", 3, pos_string);
     myGLCD.print("Set Tim:", 3, pos_string + offset_t);
-    myGLCD.printNumI(set_lux[idx[0]], pos_x, pos_string);
-    myGLCD.printNumI(set_timer[idx[1]], pos_x, pos_string + offset_t);
+    myGLCD.printNumI(configuration.set_lux[idx[0]], pos_x, pos_string);
+    myGLCD.printNumI(configuration.set_timer[idx[1]], pos_x, pos_string + offset_t);
     myGLCD.update();
 
     if (!digitalRead(PB_INTENSITY)) {
@@ -134,7 +144,7 @@ void settingScreen() {
       if (idx[0] >= 5)
         idx[0] = 0;
       Serial.print("Intensity:");
-      Serial.println(set_lux[idx[0]]);
+      Serial.println(configuration.set_lux[idx[0]]);
     }
 
     if (!digitalRead(PB_TIMER)) {
@@ -143,14 +153,15 @@ void settingScreen() {
       idx[1]++;
       if (idx[1] >= 5)
         idx[1] = 0;
-      countDown = set_timer[idx[1]] * 60;
+      
       Serial.print("Timer:");
-      Serial.println(set_timer[idx[1]]);
+      Serial.println(configuration.set_timer[idx[1]]);
     }
     if (!digitalRead(PB_OK)) {
       while (!digitalRead(PB_OK))
         yield();
       lastTick = millis();
+      countDown = configuration.set_timer[idx[1]] * 60;
       break;
     }
   }

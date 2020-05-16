@@ -1,9 +1,10 @@
-void advance_mode(int in)
+int advance_mode(int in)
 {
   /*
      0 = intensity
      1 = timer
   */
+  bool out = false;
   String s_set;
   boolean adv_set_idx = 0;
   int adv_idx = 1;
@@ -19,6 +20,7 @@ void advance_mode(int in)
   }
   value = adv_val(in, 0);
   last_set_value = value;
+  Serial.println("Advance Menu");
   while (1)
   {
     int pos_x = 38;
@@ -44,11 +46,25 @@ void advance_mode(int in)
     myGLCD.printNumI(value, pos_x, pos_string + offset_t);
     myGLCD.print("<<", 70, pos_cursor);
     myGLCD.update();
-    Serial.println("aaa");
-
+    unsigned long tick_2 = millis();
     if (!digitalRead(PB_OK)) {
       while (!digitalRead(PB_OK))
-        yield();
+      {
+        if (timerX(tick_2, 2000))
+        {
+          advScren();
+          while (!digitalRead(PB_OK))
+            yield();
+          tick_2 = millis();
+          delay(100);
+          return;
+          settingScreen();
+          out = true;
+          
+        }
+      }
+      if (out)
+        break;
       if (adv_set_idx)
       {
         adv_set_idx = false;
@@ -58,48 +74,86 @@ void advance_mode(int in)
         adv_set_idx = true;
       }
       Serial.println("OK2");
-    }
 
-    if (!digitalRead(PB_TIMER)) { //DOWN
+    }else if (!digitalRead(PB_TIMER)) { //DOWN
       while (!digitalRead(PB_TIMER))
         yield();
       //code start from here
       if (adv_set_idx) // value
       {
-        value -= 10;
+        switch (in) {
+          case 0:
+            value -= 10;
+            break;
+          case 1:
+            value -= 1;
+            break;
+          default:
+            // code block
+            break;
+        };
+        if (adv_idx == 1) {
+          if (value <= 0)
+            value = 0;
+        } else {
+          if (value <= adv_val(in, adv_idx - 2))
+            value = last_set_value;
+
+        }
+        last_set_value = value;
+        advSaveValue(in, adv_idx - 1, value);
       }
       else // index
       {
         adv_idx--;
         if (adv_idx <= 1)
           adv_idx = 1;
-        value = adv_val(in, adv_idx-1);
+        value = adv_val(in, adv_idx - 1);
+        last_set_value = value;
       }
-    }
-
-    if (!digitalRead(PB_INTENSITY)) { //UP
+      Serial.println("DOWN2");
+    }else if (!digitalRead(PB_INTENSITY)) { //UP
       while (!digitalRead(PB_INTENSITY))
         yield();
       //code start from here
       if (adv_set_idx) // value
       {
-        value += 10;
+
+        switch (in) {
+          case 0:
+            value += 10;
+            break;
+          case 1:
+            value += 1;
+            break;
+          default:
+            // code block
+            break;
+        };
+        if (adv_idx == 5) {
+          yield();
+        } else {
+          if (value >= adv_val(in, adv_idx))
+            value = last_set_value;
+
+        }
+        last_set_value = value;
+        advSaveValue(in, adv_idx - 1, value);
       }
       else // index
       {
         adv_idx++;
         if (adv_idx >= 5)
           adv_idx = 5;
-        value = adv_val(in, adv_idx-1);
+        value = adv_val(in, adv_idx - 1);
       }
+      Serial.println("UP2");
     }
   }
-
-
-
 }
 
-int adv_val(int in, int idx) {
+int adv_val(int in, int idx)
+{
   int rtn;
   if (in)
   {
@@ -111,11 +165,24 @@ int adv_val(int in, int idx) {
   }
   return rtn;
 }
+
+void advSaveValue(int in, int idx, int val)
+{
+  int rtn;
+  if (in)
+  {
+    configuration.set_timer[idx] = val;
+  }
+  else
+  {
+    configuration.set_lux[idx] = val;
+  }
+  EEPROM_writeAnything(0, configuration);
+}
 boolean timerX(int x_start, int x_stop)
 {
-  unsigned long currentMillis = millis();
   boolean rtn = false;
-  if (currentMillis - x_start >= x_stop) {
+  if (millis() - x_start >= x_stop) {
     rtn = true;
   }
   return rtn;
@@ -127,4 +194,5 @@ void advScren() {
   myGLCD.print("ADVANCE", CENTER, 15);
   myGLCD.print("MODE", CENTER, 25);
   myGLCD.update();
+  delay(500);
 }

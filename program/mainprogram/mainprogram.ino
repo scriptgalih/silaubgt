@@ -14,7 +14,7 @@ extern unsigned char TinyFont[];
 int idx[2];
 int countDown = 120;  // Countind down 2 minutes
 unsigned long lastTick;
-
+//unsigned long tick_1;
 struct config_t
 {
   int set_lux[5];
@@ -56,10 +56,11 @@ void loop() {
   // put your main code here, to run repeatedly:
   //  sensorScreen();
   //  delay(500);
+  Serial.println("al-awal");
   settingScreen();
-  Serial.println("Kocak");
+  Serial.println("timer mulai");
   sensorScreen();
-  Serial.println("Koplak");
+  Serial.println("timer berhenti");
 }
 
 void homeScreen() {
@@ -71,7 +72,7 @@ void homeScreen() {
 
 void sensorScreen()
 {
-
+  Serial.println("Timer");
   while (1) {
     digitalWrite(DIM_1, 1);
     delay(100);
@@ -116,7 +117,12 @@ void sensorScreen()
 }
 
 void settingScreen() {
+  Serial.println("Main Menuuu");
+  unsigned long tick_1;
+  tick_1 = millis();
+  boolean last_timer = false;
   while (1) {
+
     digitalWrite(DIM_1, 0);
     int pos_x = 50;
     int pos_string = 12;
@@ -140,17 +146,18 @@ void settingScreen() {
     //      Serial.print("Intensity:");
     //      Serial.println(configuration.set_lux[idx[0]]);
     //    }
-    unsigned long tick_1 = millis();
+    tick_1 = millis(); delay(10);
     if (!digitalRead(PB_INTENSITY)) {
       while (!digitalRead(PB_INTENSITY))
       {
-        if (timerX(tick_1, 1000))
+        if (timerX(tick_1, 1000) && last_timer)
         {
           advScren();
           while (!digitalRead(PB_INTENSITY))
-            yield();
+            delay(1);
           advance_mode(0);
         }
+        last_timer = timerX(tick_1, 1000);
       }
 
       idx[0]++;
@@ -158,44 +165,33 @@ void settingScreen() {
         idx[0] = 0;
       Serial.print("Intensity:");
       Serial.println(configuration.set_lux[idx[0]]);
-    }
-
-//    if (!digitalRead(PB_TIMER)) {
-//      while (!digitalRead(PB_TIMER))
-//        yield();
-//      idx[1]++;
-//      if (idx[1] >= 5)
-//        idx[1] = 0;
-//
-//      Serial.print("Timer:");
-//      Serial.println(configuration.set_timer[idx[1]]);
-//    }
-
-if (!digitalRead(PB_TIMER)) {
+    } else if (!digitalRead(PB_TIMER)) {
       while (!digitalRead(PB_TIMER))
       {
-        if (timerX(tick_1, 1000))
+        if (timerX(tick_1, 1000) && last_timer)
         {
           advScren();
           while (!digitalRead(PB_TIMER))
-            yield();
+            delay(1);
           advance_mode(1);
         }
+        last_timer = timerX(tick_1, 1000);
       }
 
       idx[1]++;
       if (idx[1] >= 5)
         idx[1] = 0;
-      Serial.print("Intensity:");
-      Serial.println(configuration.set_lux[idx[0]]);
-    }
-    if (!digitalRead(PB_OK)) {
-      while (!digitalRead(PB_OK))
-        yield();
+      Serial.print("Timer:");
+      Serial.println(configuration.set_timer[idx[1]]);
+    } else if (!digitalRead(PB_OK)) {
+      while (!digitalRead(PB_OK)) {
+        delay(1);
+        Serial.print("OK menu");
+      }
+
       lastTick = millis();
       countDown = configuration.set_timer[idx[1]] * 60;
       break;
     }
   }
-
 }

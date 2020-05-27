@@ -5,9 +5,15 @@
 #include <BH1750.h>
 #include <EEPROM.h>
 #include "EEPROMAnything.h"
+#include "Dimmer.h"
+#include "SG_PID.h"
+
 LCD5110 myGLCD(4, 7, 8, 12, 11);
 BME280 mySensorB;
 BH1750 lightMeter;
+Dimmer dimmer(10, DIMMER_RAMP, 1);
+pid pidUVC;
+
 extern uint8_t SmallFont[];
 extern unsigned char TinyFont[];
 
@@ -15,15 +21,20 @@ int idx[2];
 int countDown = 120;  // Countind down 2 minutes
 unsigned long lastTick;
 //unsigned long tick_1;
+
+int exe_dim;
 struct config_t
 {
-  int set_lux[5];
+  float set_lux[5];
   int set_timer[5];
+  int set_dimmer[5];
 } configuration;
 
 
 void setup()
 {
+  dimmer.begin();
+  dimmer.set(0);
   Serial.begin(9600);
   EEPROM_readAnything(0, configuration);
   Serial.println("Example showing alternate I2C addresses");
@@ -50,6 +61,9 @@ void setup()
   if (mySensorB.beginI2C() == false) Serial.println("Sensor B connect failed");
   myGLCD.InitLCD();
   homeScreen();
+  pidUVC.param(5, 2, 0, NORMAL);
+  pidUVC.constraint(0, 100);
+  pidUVC.timeSampling(10);
 }
 
 void loop() {
@@ -73,17 +87,20 @@ void homeScreen() {
 void sensorScreen()
 {
   Serial.println("Timer");
+  float current_output, previous_output;
+  float alpha = 0.5;
   while (1) {
     digitalWrite(DIM_1, 1);
     delay(100);
     unsigned long currentMillis = millis();
-
+    pidUVC.showUnitPID();
+    Serial.println();
     if (currentMillis - lastTick >= 1000) {
       countDown--;
       lastTick += 1000;
     }
     myGLCD.clrScr();
-    float luxx = lightMeter.readLightLevel();
+    float luxx = lightMeter.readLightLevel() * 0.0015;
     float temp = mySensorB.readTempC();
     int pos_x;
     int pos_string = 12;
@@ -91,8 +108,14 @@ void sensorScreen()
     int mins = countDown / 60;
     int secs = countDown % 60;
 
+    float current_input = luxx;
+    current_output  = alpha * current_input + (1 - alpha) * previous_output;
+    previous_output = current_output;
     char c[10];
 
+    //    pidUVC.readSensor(luxx);
+    //    pidUVC.calc();
+    //    dimmer.set(exe_dim);
     if (mins == 0 && secs == 0)
       break;
     homeScreen();
@@ -100,21 +123,22 @@ void sensorScreen()
     myGLCD.print("T:", 3, pos_string + offset_t);
     myGLCD.printNumF(temp, 1, 14, pos_string + offset_t);
     myGLCD.print("C", 39, pos_string + offset_t);
-    myGLCD.print("L:", 3, pos_string);
-    myGLCD.printNumF(luxx, 1, 14, pos_string);
+    myGLCD.print("W:", 3, pos_string);
+    myGLCD.printNumF(current_output, 1, 14, pos_string);
     if (luxx < 10)
-      pos_x = 33;
+      pos_x = 36;
     else if (luxx < 100)
-      pos_x = 33 + 6;
+      pos_x = 36 + 6;
     else if (luxx < 1000)
-      pos_x = 33 + (6 * 2);
-    myGLCD.print("lux", pos_x, pos_string);
+      pos_x = 36 + (6 * 2);
+    myGLCD.print("watt", pos_x, pos_string);
     myGLCD.print("Timer:", 3, pos_string + (offset_t * 2));
     sprintf(c, "%2d:%2d", mins, secs);
     myGLCD.print(c, 40, pos_string + (offset_t * 2));
     myGLCD.update();
+    delay(1000);
   }
-}
+}//
 
 void settingScreen() {
   Serial.println("Main Menuuu");
@@ -123,7 +147,8 @@ void settingScreen() {
   boolean last_timer = false;
   while (1) {
 
-    digitalWrite(DIM_1, 0);
+    //    digitalWrite(DIM_1, 0);
+    dimmer.set(0);
     int pos_x = 50;
     int pos_string = 12;
     int offset_t = 10;
@@ -133,7 +158,7 @@ void settingScreen() {
     myGLCD.drawLine(0, 8, 84, 8);
     myGLCD.print("Set Lux:", 3, pos_string);
     myGLCD.print("Set Tim:", 3, pos_string + offset_t);
-    myGLCD.printNumI(configuration.set_lux[idx[0]], pos_x, pos_string);
+    myGLCD.printNumF(configuration.set_lux[idx[0]], 1, pos_x, pos_string);
     myGLCD.printNumI(configuration.set_timer[idx[1]], pos_x, pos_string + offset_t);
     myGLCD.update();
     //
@@ -150,14 +175,15 @@ void settingScreen() {
     if (!digitalRead(PB_INTENSITY)) {
       while (!digitalRead(PB_INTENSITY))
       {
-        if (timerX(tick_1, 1000) && last_timer)
-        {
-          advScren();
-          while (!digitalRead(PB_INTENSITY))
-            delay(1);
-          advance_mode(0);
-        }
-        last_timer = timerX(tick_1, 1000);
+        //        if (timerX(tick_1, 10000) && last_timer)
+        //        {
+        //          advScren();
+        //          while (!digitalRead(PB_INTENSITY))
+        //            delay(1);
+        //          advance_mode(0);
+        //        }
+        //        last_timer = timerX(tick_1, 10000);
+        yield();
       }
 
       idx[0]++;
@@ -168,14 +194,15 @@ void settingScreen() {
     } else if (!digitalRead(PB_TIMER)) {
       while (!digitalRead(PB_TIMER))
       {
-        if (timerX(tick_1, 1000) && last_timer)
-        {
-          advScren();
-          while (!digitalRead(PB_TIMER))
-            delay(1);
-          advance_mode(1);
-        }
-        last_timer = timerX(tick_1, 1000);
+        //        if (timerX(tick_1, 10000) && last_timer)
+        //        {
+        //          advScren();
+        //          while (!digitalRead(PB_TIMER))
+        //            delay(1);
+        //          advance_mode(1);
+        //        }
+        //        last_timer = timerX(tick_1, 10000);
+        yield();
       }
 
       idx[1]++;
@@ -183,14 +210,18 @@ void settingScreen() {
         idx[1] = 0;
       Serial.print("Timer:");
       Serial.println(configuration.set_timer[idx[1]]);
+
     } else if (!digitalRead(PB_OK)) {
       while (!digitalRead(PB_OK)) {
         delay(1);
-        Serial.print("OK menu");
+        //        Serial.print("OK menu");
       }
 
       lastTick = millis();
       countDown = configuration.set_timer[idx[1]] * 60;
+      exe_dim = configuration.set_dimmer[idx[0]];
+      Serial.println("DIMER = " + (String)exe_dim);
+      dimmer.set(exe_dim);
       break;
     }
   }

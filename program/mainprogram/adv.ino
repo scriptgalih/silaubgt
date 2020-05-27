@@ -189,10 +189,8 @@ boolean timerX(int x_start, int x_stop)
 }
 
 void advScren() {
-  myGLCD.clrScr();
   myGLCD.setFont(SmallFont);
   myGLCD.print("ADVANCE", CENTER, 15);
   myGLCD.print("MODE", CENTER, 25);
   myGLCD.update();
-  delay(500);
 }

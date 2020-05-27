@@ -3,8 +3,9 @@
 
 struct config_t
 {
-  int set_lux[5];
+  float set_lux[5];
   int set_timer[5];
+  int set_dimmer[5];
 } configuration;
 
 void setup() {
@@ -12,17 +13,17 @@ void setup() {
   Serial.begin(9600);
   EEPROM_readAnything(0, configuration);
 
-  configuration.set_lux[0] = 50;
-  configuration.set_lux[1] = 100;
-  configuration.set_lux[2] = 150;
-  configuration.set_lux[3] = 200;
-  configuration.set_lux[4] = 250;
+  configuration.set_lux[0] = 1.0;
+  configuration.set_lux[1] = 1.1;
+  configuration.set_lux[2] = 1.5;
+  configuration.set_lux[3] = 1.8;
+  configuration.set_lux[4] = 2.0;
 
   configuration.set_timer[0] = 1;
   configuration.set_timer[1] = 2;
   configuration.set_timer[2] = 3;
   configuration.set_timer[3] = 4;
-  configuration.set_timer[4] = 6;
+  configuration.set_timer[4] = 15;
 
   EEPROM_writeAnything(0, configuration);
 

@@ -9,12 +9,13 @@
 
 LCD5110 myGLCD(4, 7, 8, 12, 11);
 BME280 mySensorB;
-BH1750 lightMeter;
+BH1750 lightMeter; 
 Dimmer dimmer(10, DIMMER_RAMP);
+
 
 extern uint8_t SmallFont[];
 extern unsigned char TinyFont[];
-
+  
 int idx[2];
 int countDown = 120;  // Countind down 2 minutes
 unsigned long lastTick;
@@ -30,6 +31,7 @@ struct config_t
 
 
 int mainMenuPos = 1;
+int exe_power;
 void setup() {
   // put your setup code here, to run once:
   dimmer.begin();
@@ -51,7 +53,7 @@ void setup() {
   digitalWrite(PB_INTENSITY, 1);
   digitalWrite(PB_TIMER, 1);
   digitalWrite(PB_OK, 1);
-  pinMode(LM_DOOR, 1);
+  digitalWrite(LM_DOOR, 1);
 
   digitalWrite(DIM_1, 0);
   digitalWrite(DIM_2, 0);
@@ -72,5 +74,5 @@ settingScreen(configuration.set_power[idx[0]], configuration.set_timer[idx[1]]);
 void loop() {
   // put your main code here, to run repeatedly:
   updateMenu();
-//  delay(1000);
+//  delay(10);
 }

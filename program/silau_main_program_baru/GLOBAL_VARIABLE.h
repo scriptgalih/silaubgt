@@ -6,7 +6,7 @@
 
 
 //Button
-#define PB_INTENSITY A0
+#define PB_INTENSITY A2
 #define PB_TIMER     A1
-#define PB_OK        A2
+#define PB_OK        A0
 #define LM_DOOR       3

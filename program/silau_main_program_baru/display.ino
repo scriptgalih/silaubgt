@@ -1,9 +1,7 @@
-void sensorDisplay(float temp, float power, int t_seconds) {
+void sensorDisplay(float temp, float power, int t_mins, int t_seconds) {
   int pos_x;
   int pos_string = 12;
   int offset_t = 10;
-  int mins = t_seconds / 60;
-  int secs = t_seconds % 60;
   char c[10];
 
   myGLCD.clrScr();
@@ -15,10 +13,10 @@ void sensorDisplay(float temp, float power, int t_seconds) {
 
   myGLCD.print("W:", 3, pos_string);
   myGLCD.printNumF(abs(power), 1, 14, pos_string);
-  myGLCD.print("watt", v2p(power), pos_string);
+  myGLCD.print("Joule", v2p(power), pos_string);
 
   myGLCD.print("Timer:", 3, pos_string + (offset_t * 2));
-  sprintf(c, "%2d:%2d", mins, secs);
+  sprintf(c, "%2d:%2d", t_mins, t_seconds);
   myGLCD.print(c, 40, pos_string + (offset_t * 2));
   myGLCD.update();
 }
@@ -27,7 +25,6 @@ void homeScreen() {
   myGLCD.setFont(SmallFont);
   myGLCD.print("UV Sterilizer", CENTER, 0);
   myGLCD.drawLine(0, 8, 84, 8);
-  myGLCD.update();
 }
 
 int v2p(float val) {
@@ -55,4 +52,12 @@ void settingScreen(float power, float t_min) {
   myGLCD.printNumF(power, 1, pos_x, pos_string);
   myGLCD.printNumI(t_min, pos_x, pos_string + offset_t);
   myGLCD.update();
+}
+
+void advScren() {
+  myGLCD.setFont(SmallFont);
+  myGLCD.print("ADVANCE", CENTER, 15);
+  myGLCD.print("MODE", CENTER, 25);
+  myGLCD.update();
+  delay(500);
 }

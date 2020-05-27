@@ -55,9 +55,25 @@ void settingScreen(float power, float t_min) {
 }
 
 void advScren() {
+  myGLCD.clrScr();
   myGLCD.setFont(SmallFont);
   myGLCD.print("ADVANCE", CENTER, 15);
   myGLCD.print("MODE", CENTER, 25);
   myGLCD.update();
   delay(500);
+}
+
+void screenAdvPower(float customVal) {
+  int pos_x = 38;
+  int pos_string = 12;
+  int offset_t = 10;
+  int pos_cursor;
+  myGLCD.clrScr();
+  myGLCD.setFont(SmallFont);
+  myGLCD.print("SET POWER", CENTER, 0);
+  myGLCD.drawLine(0, 8, 84, 8);
+  myGLCD.print("value:", CENTER, pos_string);
+  myGLCD.setFont(MediumNumbers);
+  myGLCD.printNumF(customVal, 1, CENTER, pos_string + offset_t);
+  myGLCD.update();
 }

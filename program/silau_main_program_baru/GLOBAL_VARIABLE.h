@@ -9,4 +9,4 @@
 #define PB_INTENSITY A2
 #define PB_TIMER     A1
 #define PB_OK        A0
-#define LM_DOOR       3
+#define LM_DOOR      A3

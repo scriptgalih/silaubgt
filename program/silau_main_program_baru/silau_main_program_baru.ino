@@ -9,13 +9,13 @@
 
 LCD5110 myGLCD(4, 7, 8, 12, 11);
 BME280 mySensorB;
-BH1750 lightMeter; 
+BH1750 lightMeter;
 Dimmer dimmer(10, DIMMER_RAMP);
 
 
 extern uint8_t SmallFont[];
 extern unsigned char TinyFont[];
-  
+extern unsigned char MediumNumbers[];
 int idx[2];
 int countDown = 120;  // Countind down 2 minutes
 unsigned long lastTick;
@@ -31,7 +31,10 @@ struct config_t
 
 
 int mainMenuPos = 1;
-int exe_power;
+float exe_power = 1;
+unsigned long tick_1;
+boolean last_tick = true;
+boolean last_state;
 void setup() {
   // put your setup code here, to run once:
   dimmer.begin();
@@ -43,8 +46,8 @@ void setup() {
   pinMode(PB_INTENSITY, 0);
   pinMode(PB_TIMER, 0);
   pinMode(PB_OK, 0);
-  pinMode(LM_DOOR,0);
-  
+  pinMode(LM_DOOR, 0);
+
   pinMode(DIM_1, 1);
   pinMode(DIM_2, 1);
   pinMode(DIM_3, 1);
@@ -59,20 +62,20 @@ void setup() {
   digitalWrite(DIM_2, 0);
   digitalWrite(DIM_3, 0);
   digitalWrite(DIM_4, 0);
-  
+
   lightMeter.begin();
   mySensorB.setI2CAddress(0x76); //Connect to a second sensor
   if (mySensorB.beginI2C() == false) Serial.println("Sensor B connect failed");
   myGLCD.InitLCD();
   delay(500);
-//  sensorDisplay(1.2, 122.2, 124);
-//  settingScreen(1.2, 4);
-settingScreen(configuration.set_power[idx[0]], configuration.set_timer[idx[1]]);
-//  updateMenu();
+  //  sensorDisplay(1.2, 122.2, 124);
+  //  settingScreen(1.2, 4);
+  settingScreen(1, configuration.set_timer[idx[1]]);
+  //  updateMenu();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   updateMenu();
-//  delay(10);
+  //  delay(10);
 }

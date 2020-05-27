@@ -20,9 +20,9 @@ void setup() {
   configuration.set_lux[4] = 2.0;
 
   configuration.set_timer[0] = 1;
-  configuration.set_timer[1] = 2;
-  configuration.set_timer[2] = 3;
-  configuration.set_timer[3] = 4;
+  configuration.set_timer[1] = 3;
+  configuration.set_timer[2] = 5;
+  configuration.set_timer[3] = 10;
   configuration.set_timer[4] = 15;
 
   EEPROM_writeAnything(0, configuration);

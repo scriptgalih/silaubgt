@@ -6,3 +6,9 @@ boolean timerX(int x_start, int x_stop)
   }
   return rtn;
 }
+
+void doorSecurity(){
+  if(digitalRead(3)){
+    
+  }
+}

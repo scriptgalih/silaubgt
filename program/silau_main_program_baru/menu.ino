@@ -1,4 +1,5 @@
 void updateMenu() {
+  last_tick = false;
   switch (mainMenuPos) {
     case 1: //Home Screen
       if (1) {
@@ -12,7 +13,7 @@ void updateMenu() {
               mainMenuPos = 3;
               break;
             }
-//            last_tick = timerX(tick_1, 3000);
+            last_tick = tick_1;
 
           }
           idx[0]++;
@@ -160,6 +161,7 @@ void updateMenu() {
       }
     case 4:
     if(1){
+      last_tick = false;
       warningMSG();
       delay(2000);
       mainMenuPos = 1;

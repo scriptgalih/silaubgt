@@ -33,7 +33,7 @@ struct config_t
 int mainMenuPos = 1;
 float exe_power = 1;
 unsigned long tick_1;
-boolean last_tick = true;
+boolean last_tick = false;
 boolean last_state;
 void setup() {
   // put your setup code here, to run once:
@@ -70,15 +70,17 @@ void setup() {
   delay(500);
   //  sensorDisplay(1.2, 122.2, 124);
   //  settingScreen(1.2, 4);
-  settingScreen(1, configuration.set_timer[idx[1]]);
+  //  settingScreen(1, configuration.set_timer[idx[1]]);
   //  updateMenu();
-//  warningMSG();
+  //  warningMSG();
+  introMSG();
+  delay(2143);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   updateMenu();
   tick_1 = millis();
-  last_tick = timerX(tick_1, 3000);
+  //  last_tick = timerX(tick_1, 3000);
   //  delay(10);
 }

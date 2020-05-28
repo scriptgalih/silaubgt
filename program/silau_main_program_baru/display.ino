@@ -3,7 +3,10 @@ void sensorDisplay(float temp, float power, int t_mins, int t_seconds) {
   int pos_string = 12;
   int offset_t = 10;
   char c[10];
-
+  if (temp <= 0)
+    temp = 0.001;
+  if (power <= 0)
+    power = 0.001;
   myGLCD.clrScr();
   homeScreen();
   myGLCD.setFont(SmallFont);
@@ -11,7 +14,7 @@ void sensorDisplay(float temp, float power, int t_mins, int t_seconds) {
   myGLCD.printNumF(abs(temp), 1, 14, pos_string + offset_t);
   myGLCD.print("C", v2p(temp), pos_string + offset_t);
 
-  myGLCD.print("W:", 3, pos_string);
+  myGLCD.print("P:", 3, pos_string);
   myGLCD.printNumF(abs(power), 1, 14, pos_string);
   myGLCD.print("Joule", v2p(power), pos_string);
 
@@ -85,5 +88,13 @@ void warningMSG() {
   myGLCD.print("JGN PAKAI", CENTER, 20);
   myGLCD.print("TIMER TERLAMA", CENTER, 30);
   myGLCD.update();
-  delay(500);
+}
+
+void introMSG() {
+  myGLCD.clrScr();
+  myGLCD.setFont(SmallFont);
+  myGLCD.print("UV-C", CENTER, 10);
+  myGLCD.print("STERILLIZER", CENTER, 20);
+  myGLCD.print("SV-UGM", CENTER, 30);
+  myGLCD.update();
 }

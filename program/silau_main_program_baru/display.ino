@@ -77,3 +77,13 @@ void screenAdvPower(float customVal) {
   myGLCD.printNumF(customVal, 1, CENTER, pos_string + offset_t);
   myGLCD.update();
 }
+
+void warningMSG() {
+  myGLCD.clrScr();
+  myGLCD.setFont(SmallFont);
+  myGLCD.print("WARING !!!", CENTER, 10);
+  myGLCD.print("JGN PAKAI", CENTER, 20);
+  myGLCD.print("TIMER TERLAMA", CENTER, 30);
+  myGLCD.update();
+  delay(500);
+}

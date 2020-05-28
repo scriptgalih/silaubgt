@@ -12,7 +12,7 @@ void updateMenu() {
               mainMenuPos = 3;
               break;
             }
-            last_tick = timerX(tick_1, 3000);
+//            last_tick = timerX(tick_1, 3000);
 
           }
           idx[0]++;
@@ -40,6 +40,11 @@ void updateMenu() {
           while (!digitalRead(PB_OK)) {
             delay(1);
             //        Serial.print("OK menu");
+          }
+
+          if(exe_power>=2 && idx[1] == 4){
+            mainMenuPos = 4;
+            break;
           }
           lastTick = millis();
           countDown = configuration.set_timer[idx[1]] * 60;
@@ -154,6 +159,11 @@ void updateMenu() {
         break;
       }
     case 4:
+    if(1){
+      warningMSG();
+      delay(2000);
+      mainMenuPos = 1;
+    }
     default:
       break;
   }

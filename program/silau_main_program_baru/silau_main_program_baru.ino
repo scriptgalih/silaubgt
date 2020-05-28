@@ -72,10 +72,13 @@ void setup() {
   //  settingScreen(1.2, 4);
   settingScreen(1, configuration.set_timer[idx[1]]);
   //  updateMenu();
+//  warningMSG();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   updateMenu();
+  tick_1 = millis();
+  last_tick = timerX(tick_1, 3000);
   //  delay(10);
 }
